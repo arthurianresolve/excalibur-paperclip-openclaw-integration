@@ -1,0 +1,17 @@
+# Node
+node_modules/
+services/paperclip-openclaw-adapter/node_modules/
+services/paperclip-openclaw-adapter/dist/
+services/paperclip-openclaw-adapter/.turbo/
+services/paperclip-openclaw-adapter/.next/
+
+# Python
+.venv/
+
+# OpenClaw
+.openclaw/backups/
+.openclaw/tmp/
+
+# Logs
+logs/
+*.log
