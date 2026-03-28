@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  openclaw:
+    image: openclaw/openclaw:2026.3.24
+    environment:
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ../:/home/george/.openclaw/workspace
+    ports:
+      - "18789:18789"
+    restart: unless-stopped
+
+  paperclip:
+    image: paperclipai/paperclip:latest
+    depends_on:
+      - openclaw
+    environment:
+      - PAPERCLIP_CONFIG=/config/paperclip.yaml
+      - CLIP_OPENCLAW_ENDPOINT=http://openclaw:18789
+    volumes:
+      - ./paperclip-config:/config
+    restart: unless-stopped
+
+  paperclip-adapter:
+    build:
+      context: /home/george/.openclaw/workspace/services/paperclip-openclaw-adapter
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./paperclip-adapter.env
+    environment:
+      - PORT=3210
+      - OPENCLAW_GATEWAY_URL=http://openclaw:18789
+      - OPENCLAW_ACTION_PATH=/gateway/actions
+      - OPENCLAW_AUTH_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      - PAPERCLIP_CALLBACK_URL=http://paperclip:3100
+      - TRUSTED_ACTIONS=queryAuditLogs,runTrustedSkill
+    ports:
+      - "3210:3210"
+    depends_on:
+      - openclaw
+      - paperclip
+    volumes:
+      - ../:/workspace:ro
+      - ../compliance:/shared-compliance
+      - ../trusted-skills.json:/workspace/trusted-skills.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3210/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

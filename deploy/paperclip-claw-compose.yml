@@ -1,0 +1,83 @@
+version: "3.9"
+
+# Option 1: Paperclip + adapter via Compose, OpenClaw runs on the host (loopback/lan)
+# - OpenClaw remains host-native (port 18789)
+# - Compose manages: paperclip-controller + paperclip-adapter
+
+services:
+  paperclip-controller:
+    build:
+      context: /home/george/.openclaw/workspace/vendor/paperclip
+      dockerfile: Dockerfile
+    container_name: paperclip-controller
+    restart: unless-stopped
+    env_file:
+      - /home/george/.openclaw/workspace/deploy/paperclip-controller.env
+    environment:
+      PAPERCLIP_HOME: /paperclip
+      PAPERCLIP_INSTANCE_ID: paperclip-prod
+      PAPERCLIP_CONFIG: /paperclip/instances/paperclip-prod/config.json
+      PORT: "3100"
+      HOST: "0.0.0.0"
+      SERVE_UI: "true"
+    ports:
+      - "3100:3100"
+    volumes:
+      - /home/george/.paperclip:/paperclip
+      - /home/george/.openclaw/workspace:/openclaw-workspace:ro
+      - /home/george/.openclaw/workspace/compliance:/shared-compliance
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3100/api/health >/dev/null 2>&1 || wget -qO- http://127.0.0.1:3100/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  paperclip-adapter:
+    build:
+      context: /home/george/.openclaw/workspace/services/paperclip-openclaw-adapter
+      dockerfile: Dockerfile
+    container_name: paperclip-adapter
+    restart: unless-stopped
+    env_file:
+      - ./paperclip-adapter.env
+    environment:
+      - PORT=3210
+      - OPENCLAW_GATEWAY_URL=http://host.docker.internal:18789
+      - OPENCLAW_ACTION_PATH=/gateway/actions
+      - OPENCLAW_AUTH_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      - PAPERCLIP_CALLBACK_URL=http://paperclip-controller:3100
+      - TRUSTED_ACTIONS=queryAuditLogs,runTrustedSkill
+    ports:
+      - "3210:3210"
+    depends_on:
+      paperclip-controller:
+        condition: service_healthy
+    volumes:
+      - /home/george/.openclaw/workspace:/workspace:ro
+      - /home/george/.openclaw/workspace/compliance:/shared-compliance
+      - /home/george/.openclaw/workspace/trusted-skills.json:/workspace/trusted-skills.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3210/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: paperclip-claw
