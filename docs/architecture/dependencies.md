@@ -20,17 +20,28 @@ This integration has three dependency layers: runtime platform, containers, and 
 
 ## 3) Adapter service packages
 
-From `services/paperclip-openclaw-adapter/package.json`:
+From `services/paperclip-openclaw-adapter/package.json` (grouped by usage):
 
-### Production
+### Runtime / operations
 - `axios` – HTTP client
 - `express` – HTTP server framework
 - `zod` – schema validation
 
-### Development
-- TypeScript toolchain, linting, and tests: `typescript`, `eslint`, `vitest`, etc.
+### Build
+- `typescript` – TypeScript compiler
+- `esbuild` – fast TS/JS build pipeline
+
+### Testing
+- `vitest` – test runner
+- `supertest` – HTTP testing helper
+- `@types/supertest` – typings for tests
+
+### Debugging / development ergonomics
+- `ts-node` – run TS locally
+- `eslint`, `prettier`, `@typescript-eslint/*` – linting + formatting
+- `@types/node`, `@types/express` – typings
 
 ## Source of truth
 
 - `DEPENDENCIES.md` (human‑readable)
-- `DEPENDENCIES.json` (machine‑readable)
+- `DEPENDENCIES.json` (machine‑readable + category map)
