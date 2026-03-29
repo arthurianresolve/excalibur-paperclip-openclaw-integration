@@ -9,8 +9,48 @@ services/paperclip-openclaw-adapter/.next/
 .venv/
 
 # OpenClaw
+.openclaw/
+deploy/openclaw-home/
 .openclaw/backups/
 .openclaw/tmp/
+
+drive-download-*/
+
+# OpenClaw workspace artifacts
+AGENTS.md
+SOUL.md
+USER.md
+TOOLS.md
+IDENTITY.md
+HEARTBEAT.md
+BOOTSTRAP.md
+CHATGPT.md
+CHATGPT.MD
+CLAUDE.md
+CLEAN-CODING.md
+SECURE-CODING.md
+TRANSPARENCY.md
+OPENCLAW_GENAI_SECURITY_GUIDANCE.md
+ADK_INTEGRATION_PLAN.md
+OPENGSPACE_ADK_PLAN.md
+MODEL_GOVERNANCE_PLAN.md
+ENTERPRISE_OPERATIONS_PLAN.md
+AI_ACT_COMPLIANCE.md
+COMPLIANCE_DASHBOARD_HOWTO.md
+TEMP_SUBAGENT_PROMPT_TEMPLATE.md
+curated-model-bundles.json
+dependency-mapping.md
+chatgpt-prompts/
+host_skills/
+mcp/
+skills/
+toolkits/
+docs/
+scripts/
+
+# Misc
+*.skill
+vendor/
 
 # Logs
 logs/

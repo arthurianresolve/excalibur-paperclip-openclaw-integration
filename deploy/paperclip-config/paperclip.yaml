@@ -1,0 +1,11 @@
+paperclip:
+  name: openclaw-paperclip-bind
+  workers:
+    - id: openclaw
+      type: rest
+      endpoint: http://openclaw:18789
+      api_key_header: X-OpenClaw-Token
+      api_key_value: ${OPENCLAW_GATEWAY_TOKEN}
+policies:
+  - allow:
+      - skills: ["discord","github","excalibur-compliance-dashboard","excalibur-compliance-checklist"]
