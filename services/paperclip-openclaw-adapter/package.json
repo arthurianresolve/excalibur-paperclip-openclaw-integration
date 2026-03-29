@@ -39,5 +39,10 @@
   },
   "overrides": {
     "minimatch": "^10.2.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimatch": "^10.2.4"
+    }
   }
 }
