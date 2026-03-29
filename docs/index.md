@@ -1,6 +1,6 @@
 # Integration Documentation
 
-Welcome to the Excalibur Paperclip ↔ OpenClaw integration docs. This folder mirrors the OpenClaw docs style: focused pages, clear sections, and actionable steps.
+Welcome to the Excalibur Paperclip ↔ OpenClaw integration docs.
 
 ## Start here
 
