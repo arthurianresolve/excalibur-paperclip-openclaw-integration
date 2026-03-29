@@ -19,5 +19,8 @@ logs/
 # Secrets/env
 deploy/.env
 
+# Memory (keep out of repo)
+memory/
+
 # Vendor builds
 vendor/openclaw/
