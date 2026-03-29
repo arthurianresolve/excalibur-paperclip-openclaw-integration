@@ -1,4 +1,4 @@
-# Excalibur Paperclip ↔ OpenClaw Integration
+# Excalibur - Paperclip ↔ OpenClaw Integration
 
 This repository contains the Paperclip ↔ OpenClaw integration stack: a policy‑enforced adapter service, deployment assets for Paperclip and OpenClaw, and documentation for running the system safely.
 
