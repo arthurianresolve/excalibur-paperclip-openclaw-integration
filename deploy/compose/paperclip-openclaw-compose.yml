@@ -1,16 +1,16 @@
 services:
   openclaw:
     build:
-      context: ../vendor/openclaw
+      context: ../../vendor/openclaw
       args:
         OPENCLAW_VARIANT: ${OPENCLAW_VARIANT:-slim}
     image: openclaw/local:latest
     env_file:
-      - ./.env
+      - ../.env
     environment:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
       - OPENCLAW_HOME=/home/george/.openclaw/workspace/deploy/openclaw-home
-      - OPENCLAW_CONFIG_PATH=/home/george/.openclaw/workspace/deploy/openclaw-container.json
+      - OPENCLAW_CONFIG_PATH=/home/george/.openclaw/workspace/deploy/openclaw/openclaw-container.json
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     command:
       - node
@@ -22,7 +22,7 @@ services:
       - --port
       - "18789"
     volumes:
-      - ../:/home/george/.openclaw/workspace
+      - ../../:/home/george/.openclaw/workspace
     ports:
       - "${OPENCLAW_HOST_PORT:-19789}:18789"
     restart: unless-stopped
@@ -49,14 +49,14 @@ services:
       - openclaw
       - postgres
     env_file:
-      - ./.env
+      - ../.env
     environment:
       - PAPERCLIP_CONFIG=/config/paperclip.yaml
       - CLIP_OPENCLAW_ENDPOINT=http://openclaw:18789
       - DATABASE_URL=postgresql://paperclip:paperclip@postgres:5432/paperclip
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
     volumes:
-      - ./paperclip-config:/config
+      - ../paperclip:/config
     restart: unless-stopped
 
   paperclip-adapter:
@@ -65,8 +65,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - ./.env
-      - ./paperclip-adapter.env
+      - ../.env
+      - ../adapter/paperclip-adapter.env
     environment:
       - PORT=3210
       - OPENCLAW_GATEWAY_URL=http://openclaw:18789
@@ -80,9 +80,9 @@ services:
       - openclaw
       - paperclip
     volumes:
-      - ../:/workspace:ro
-      - ../compliance:/shared-compliance
-      - ../trusted-skills.json:/workspace/trusted-skills.json:ro
+      - ../../:/workspace:ro
+      - ../../compliance:/shared-compliance
+      - ../../trusted-skills.json:/workspace/trusted-skills.json:ro
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3210/health',res=>{process.exit(res.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
       interval: 30s

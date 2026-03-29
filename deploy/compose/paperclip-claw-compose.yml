@@ -1,5 +1,3 @@
-version: "3.9"
-
 # Option 1: Paperclip + adapter via Compose, OpenClaw runs on the host (loopback/lan)
 # - OpenClaw remains host-native (port 18789)
 # - Compose manages: paperclip-controller + paperclip-adapter
@@ -12,7 +10,7 @@ services:
     container_name: paperclip-controller
     restart: unless-stopped
     env_file:
-      - /home/george/.openclaw/workspace/deploy/paperclip-controller.env
+      - ../paperclip/paperclip-controller.env
     environment:
       PAPERCLIP_HOME: /paperclip
       PAPERCLIP_INSTANCE_ID: paperclip-prod
@@ -24,8 +22,8 @@ services:
       - "3100:3100"
     volumes:
       - /home/george/.paperclip:/paperclip
-      - /home/george/.openclaw/workspace:/openclaw-workspace:ro
-      - /home/george/.openclaw/workspace/compliance:/shared-compliance
+      - ../../:/openclaw-workspace:ro
+      - ../../compliance:/shared-compliance
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
@@ -47,7 +45,8 @@ services:
     container_name: paperclip-adapter
     restart: unless-stopped
     env_file:
-      - ./paperclip-adapter.env
+      - ../.env
+      - ../adapter/paperclip-adapter.env
     environment:
       - PORT=3210
       - OPENCLAW_GATEWAY_URL=http://host.docker.internal:18789
@@ -61,13 +60,13 @@ services:
       paperclip-controller:
         condition: service_healthy
     volumes:
-      - /home/george/.openclaw/workspace:/workspace:ro
-      - /home/george/.openclaw/workspace/compliance:/shared-compliance
-      - /home/george/.openclaw/workspace/trusted-skills.json:/workspace/trusted-skills.json:ro
+      - ../../:/workspace:ro
+      - ../../compliance:/shared-compliance
+      - ../../trusted-skills.json:/workspace/trusted-skills.json:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3210/health >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3210/health',res=>{process.exit(res.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
       interval: 30s
       timeout: 10s
       retries: 5
