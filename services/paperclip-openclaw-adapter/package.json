@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
+  "packageManager": "pnpm@10.32.1",
   "engines": {
     "node": ">=18"
   },

@@ -11,17 +11,17 @@ A lightweight TypeScript/Node HTTP bridge that validates and audits trusted Pape
 ## Local development
 1. Install dependencies and verify licensing:
    ```bash
-   npm install
-   npm run lint
+   pnpm install
+   pnpm run lint
    ```
-2. Build the runtime [`npm run build`] and then launch for smoke testing:
+2. Build the runtime (`pnpm run build`) and then launch for smoke testing:
    ```bash
    OPENCLAW_GATEWAY_URL=https://127.0.0.1:18789 \
      OPENCLAW_AUTH_TOKEN=your-token \
      PAPERCLIP_CALLBACK_URL=http://localhost:3100 \
      node dist/index.js
    ```
-3. Use `npm run dev` to run the TypeScript source with `ts-node` during rapid iteration.
+3. Use `pnpm run dev` to run the TypeScript source with `ts-node` during rapid iteration.
 
 ## Runtime contract
 Environment variables the adapter expects:
@@ -47,9 +47,9 @@ docker run --rm -e OPENCLAW_GATEWAY_URL=... ... -p 3210:3210 paperclip-openclaw-
 ```
 
 ## Testing & linting
-- `npm run lint` runs ESLint + `scripts/verify-license.js`
-- `npm run build` compiles the TypeScript entrypoints to `dist/`
-- `npm run test` is a placeholder for future Vitest coverage
+- `pnpm run lint` runs ESLint + `scripts/verify-license.js`
+- `pnpm run build` compiles the TypeScript entrypoints to `dist/`
+- `pnpm run test` is a placeholder for future Vitest coverage
 
 ## Philosophy
 Start simple and split later: the current code keeps transport, handler, and clients in a few files so reviewers can reason about validation, schema, and audits without navigating dozen modules. When the action surface grows, break the handler into dedicated files but keep the same typed contracts.
