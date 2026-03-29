@@ -20,6 +20,7 @@ logs/
 deploy/.env
 
 # Memory (keep out of repo)
+MEMORY.md
 memory/
 
 # Vendor builds
