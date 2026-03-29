@@ -15,3 +15,9 @@ services/paperclip-openclaw-adapter/.next/
 # Logs
 logs/
 *.log
+
+# Secrets/env
+deploy/.env
+
+# Vendor builds
+vendor/openclaw/

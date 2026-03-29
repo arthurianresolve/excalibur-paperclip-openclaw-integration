@@ -2,23 +2,61 @@ version: '3.9'
 
 services:
   openclaw:
-    image: openclaw/openclaw:2026.3.24
+    build:
+      context: ../vendor/openclaw
+      args:
+        OPENCLAW_VARIANT: ${OPENCLAW_VARIANT:-slim}
+    image: openclaw/local:latest
+    env_file:
+      - ./.env
     environment:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      - OPENCLAW_HOME=/home/george/.openclaw/workspace/deploy/openclaw-home
+      - OPENCLAW_CONFIG_PATH=/home/george/.openclaw/workspace/deploy/openclaw-container.json
       - GITHUB_TOKEN=${GITHUB_TOKEN}
+    command:
+      - node
+      - openclaw.mjs
+      - gateway
+      - --allow-unconfigured
+      - --bind
+      - lan
+      - --port
+      - "18789"
     volumes:
       - ../:/home/george/.openclaw/workspace
     ports:
-      - "18789:18789"
+      - "${OPENCLAW_HOST_PORT:-19789}:18789"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const {execSync}=require('child_process'); const ip=execSync('hostname -i').toString().trim().split(/\\s+/)[0]; fetch('http://' + ip + ':18789/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=paperclip
+      - POSTGRES_USER=paperclip
+      - POSTGRES_PASSWORD=paperclip
+    volumes:
+      - paperclip-db:/var/lib/postgresql/data
     restart: unless-stopped
 
   paperclip:
     image: paperclipai/paperclip:latest
     depends_on:
       - openclaw
+      - postgres
+    env_file:
+      - ./.env
     environment:
       - PAPERCLIP_CONFIG=/config/paperclip.yaml
       - CLIP_OPENCLAW_ENDPOINT=http://openclaw:18789
+      - DATABASE_URL=postgresql://paperclip:paperclip@postgres:5432/paperclip
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
     volumes:
       - ./paperclip-config:/config
     restart: unless-stopped
@@ -29,6 +67,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
+      - ./.env
       - ./paperclip-adapter.env
     environment:
       - PORT=3210
@@ -47,7 +86,7 @@ services:
       - ../compliance:/shared-compliance
       - ../trusted-skills.json:/workspace/trusted-skills.json:ro
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3210/health >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3210/health',res=>{process.exit(res.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -57,3 +96,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  paperclip-db:
